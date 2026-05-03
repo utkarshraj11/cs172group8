@@ -73,7 +73,7 @@ class WikiCrawler:
     @staticmethod
     def extract_links(soup, base_url):
         links = set()
-        allowed_domains = ['simple.wikipedia.org']
+        allowed_domains = ['en.wikipedia.org']
         for a_tag in soup.find_all('a', href=True):
             href = a_tag['href']
             full_url = urljoin(base_url, href)
@@ -117,7 +117,6 @@ class WikiCrawler:
             
             self.current_session_visited_urls.add(final_url)
             page_data = {
-                "url": final_url,
                 "content": text_content
             }
             self.scraped_data[final_url] = page_data

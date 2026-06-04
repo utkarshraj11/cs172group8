@@ -1,0 +1,26 @@
+<!doctype html>
+<title>Hello from Search Engine</title>
+
+<h1>Search!</h1>
+<form method="post">
+  <input type="text" name="query" value="{{ query }}">
+  <input type="submit" value="Search">
+</form>
+
+{% if results is not none %}
+    {% if results %}
+  <h1>Search Results:</h1>
+ 
+    {% for result in results %}
+      <p>
+        <strong>{{ result.title }}</strong><br>
+        {{ result.content_clip }}<br>
+        Score: {{ result.score }}<br>
+        Date: {{ result.modified_date }}
+      </p>
+    {% endfor %}
+  
+{% else %}
+  <h1>No results found!</h1>
+{% endif %}
+{% endif %}

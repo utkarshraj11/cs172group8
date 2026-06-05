@@ -89,3 +89,13 @@ def normalize_url(url) -> str:
     """Strips parameters and fragments from the URL and handles case sensitivity."""
     parsed_url = urlparse(url)
     return urlunparse(parsed_url._replace(scheme=parsed_url.scheme.lower(),fragment="", query=""))
+
+def extract_infobox(soup):
+    infobox = soup.find('table', class_='infobox')
+
+    infobox_html = ""
+    if infobox:
+        infobox_html = str(infobox)
+        print(infobox_html)
+    
+    return infobox_html

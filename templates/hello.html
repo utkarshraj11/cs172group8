@@ -4,8 +4,26 @@
 <h1>Search!</h1>
 <form method="post">
   <input type="text" name="query" value="{{ query }}">
-  <input type="submit" value="Search">
+  <button type="submit">Search</button>
+  <details>
+    <summary>Filter</summary>
+    <label for="search_type">Search Type:</label>
+   
+  <select name="search_type"  >
+      <option value="single_field">Search</option>
+      <option value="multi_field">MultiSearch</option>
+  </select>
+  <br>
+   <label for="ranking_algorithm">Ranking Algorithm:</label>
+  <select name="ranking_algorithm">
+
+      <option value="bm25">BM25</option>
+      <option value="pagerank">PageRank</option>
+  </select>
+
+    </details>
 </form>
+
 
 {% if results is not none %}
     {% if results %}

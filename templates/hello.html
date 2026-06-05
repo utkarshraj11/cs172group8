@@ -5,21 +5,38 @@
 <form method="post">
   <input type="text" name="query" value="{{ query }}">
   <input type="submit" value="Search">
+    <div style="margin-top: 10px">
+    Rank by:
+    <label>
+      <input type="radio" name="rank_mode" value="lucene"
+            {% if rank_mode == 'lucene' %}checked{% endif %}>
+      Lucene
+    </label>
+    <label>
+      <input type="radio" name="rank_mode" value="pagerank"
+            {% if rank_mode == 'pagerank' %}checked{% endif %}
+            {% if not pagerank_available %}disabled{% endif %}>
+      PageRank
+    </label>
+    {% if not pagerank_available %}
+      <em>(PageRank unavailable run <code>python pagerank.py</code> to enable.)</em>
+    {% endif %}
+  </div>
 </form>
 
 {% if results is not none %}
     {% if results %}
   <h1>Search Results:</h1>
- 
     {% for result in results %}
       <p>
         <strong>{{ result.title }}</strong><br>
         {{ result.content_clip }}<br>
+        &middot; Lucene: {{ result.lucene_score }}
+        &middot; PageRank: {{ result.pagerank_score }}<br>
         Score: {{ result.score }}<br>
         Date: {{ result.modified_date }}
       </p>
     {% endfor %}
-  
 {% else %}
   <h1>No results found!</h1>
 {% endif %}

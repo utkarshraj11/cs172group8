@@ -57,11 +57,12 @@ def search(index_dir,query_str,field="Context",top_k =10):
    return results
 # multi field search function 
 def multifield_search(index_dir,query_str,fields=["Title","Heading","Context"],top_k =10):
+    lucene.getVMEnv().attachCurrentThread()
     storer = NIOFSDirectory(Paths.get(index_dir))
     reader = DirectoryReader.open(storer)
     searcher = IndexSearcher(reader)
     parses = MultiFieldQueryParser(fields,StandardAnalyzer())
-    query = parses.parse(query_str)
+    query = MultiFieldQueryParser.parse(parses, query_str)
     score_hits = searcher.search(query,top_k).scoreDocs
     results = []
     for hit in score_hits:
@@ -82,9 +83,11 @@ def hello_world():
     query_str=""
     if request.method == "POST":
         query_str = request.form.get("query")
-        results = search("index", query_str)
-    #add multi field search
-    
+        search_type = request.form.get("search_type")
+        if search_type=="multi_field":
+            results = multifield_search("index", query_str)
+        else:
+            results = search("index", query_str)
 
     return render_template('hello.html', results=results, query=query_str)
 

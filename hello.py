@@ -94,6 +94,7 @@ def multifield_search(index_dir,query_str,fields=["Title","Heading","Context"],t
             "pagerank_score": round(page_rank_score,6),
             "modified_date": doc.get("Modify date"),
             "content_clip": snippet(content, query_str),
+            "infobox": doc.get("Infobox"),
         })
     reader.close()
     
@@ -110,7 +111,7 @@ def hello_world():
         # results = search("index", query_str)
         rank_mode = request.form.get("rank_mode","lucene")
     #add multi field search
-        results = multifield_search("index", query_str,rank_mode=rank_mode)
+        results = multifield_search("index1", query_str,rank_mode=rank_mode)
 
     return render_template('hello.html',results=results,query=query_str,rank_mode=rank_mode,pagerank_available=bool(PAGERANK))
 

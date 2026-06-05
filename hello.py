@@ -54,7 +54,6 @@ def search(index_dir,query_str,field="Context",top_k =10):
            "content_clip": snippet(content, query_str),
        })
    reader.close()
-   results.sort(key=lambda x: x["score"], reverse=True)
    return results
 
 @app.route("/", methods=["GET", "POST"])

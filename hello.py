@@ -16,7 +16,21 @@ app = Flask(__name__)
 
 lucene.initVM(vmargs=['-Djava.awt.headless=true'])
 
-
+def snippet(content, query):
+    sentences = content.split('.')
+    query_terms = query.lower().split()
+    best_sentence = ""
+    score = 0
+    for sentence in sentences:
+        if len(sentence) < 10:
+            continue
+        sentence_score = sum(1 for term in query_terms if term in sentence.lower())
+        if sentence_score > score:
+            score = sentence_score
+            best_sentence = sentence 
+    if best_sentence:
+        return best_sentence.strip() + "..."
+    return content[:250] + "..."
 
 
 def search(index_dir,query_str,field="Context",top_k =10):
@@ -32,12 +46,12 @@ def search(index_dir,query_str,field="Context",top_k =10):
    results = []
    for hit in score_hits:
        doc = searcher.doc(hit.doc)
-       content = doc.get("Context")[:250]
+       content = doc.get("Context")
        results.append({
            "score": round(hit.score, 4),
            "title": doc.get("Title"),
            "modified_date": doc.get("Modify date"),
-           "content_clip": re.sub(r"\s+", " ", content) + "...",
+           "content_clip": snippet(content, query_str),
        })
    reader.close()
    return results

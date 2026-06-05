@@ -1,0 +1,15 @@
+services:
+  search:
+    build: .
+    image: cs172group8-search
+    container_name: cs172-search
+    ports:
+      - "5050:5000"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_APP=hello.py
+      - FLASK_DEBUG=1
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true

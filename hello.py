@@ -3,13 +3,13 @@ from flask import render_template, request
 import re
 import lucene
 import os
-from org.apache.lucene.store import MMapDirectory, SimpleFSDirectory, NIOFSDirectory
+from org.apache.lucene.store import MMapDirectory, NIOFSDirectory
 from java.nio.file import Paths
 from org.apache.lucene.analysis.standard import StandardAnalyzer
 from org.apache.lucene.document import Document, Field, FieldType
 from org.apache.lucene.queryparser.classic import QueryParser, MultiFieldQueryParser
 from org.apache.lucene.index import FieldInfo, IndexWriter, IndexWriterConfig, IndexOptions, DirectoryReader
-from org.apache.lucene.search import IndexSearcher, BoostQuery, Query
+from org.apache.lucene.search import IndexSearcher, BoostQuery, Query, BooleanQuery, BooleanClause
 from org.apache.lucene.search.similarities import BM25Similarity
 
 app = Flask(__name__)
@@ -57,21 +57,27 @@ def search(index_dir,query_str,field="Context",top_k =10):
    return results
 # multi field search function 
 def multifield_search(index_dir,query_str,fields=["Title","Heading","Context"],top_k =10):
+    lucene.getVMEnv().attachCurrentThread()
     storer = NIOFSDirectory(Paths.get(index_dir))
     reader = DirectoryReader.open(storer)
     searcher = IndexSearcher(reader)
-    parses = MultiFieldQueryParser(fields,StandardAnalyzer())
-    query = parses.parse(query_str)
-    score_hits = searcher.search(query,top_k).scoreDocs
+    analyzer = StandardAnalyzer()
+    builder = BooleanQuery.Builder()
+    for field in fields:
+        parsed = QueryParser(field, analyzer).parse(query_str)
+        builder.add(parsed, BooleanClause.Occur.SHOULD)
+    query = builder.build()
+
+    score_hits = searcher.search(query, top_k).scoreDocs
     results = []
     for hit in score_hits:
         doc = searcher.doc(hit.doc)
-        content = doc.get("Context")[:250]
+        content = doc.get("Context")
         results.append({
             "score": round(hit.score, 4),
             "title": doc.get("Title"),
             "modified_date": doc.get("Modify date"),
-            "content_clip": re.sub(r"\s+", " ", content) + "...",
+            "content_clip": snippet(content, query_str),
         })
     reader.close()
     return results
@@ -82,11 +88,11 @@ def hello_world():
     query_str=""
     if request.method == "POST":
         query_str = request.form.get("query")
-        results = search("index", query_str)
+        # results = search("index", query_str)
     #add multi field search
-    
+        results = multifield_search("index", query_str)
 
     return render_template('hello.html', results=results, query=query_str)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

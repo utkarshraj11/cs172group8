@@ -66,6 +66,7 @@ def multifield_search(index_dir,query_str,fields=["Title","Heading","Context"],t
     storer = NIOFSDirectory(Paths.get(index_dir))
     reader = DirectoryReader.open(storer)
     searcher = IndexSearcher(reader)
+
     analyzer = StandardAnalyzer()
     builder = BooleanQuery.Builder()
     for field in fields:
